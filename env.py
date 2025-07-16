@@ -66,6 +66,8 @@ class RacecarEnv(gym.Env):
         if self.render_mode == 'human':
             # draw visuals
             self.renderer.handle_events()
+            if self.renderer.stopped:
+                raise RuntimeError("pygame GUI was closed")
             self.renderer.render()
         elif self.render_mode == 'rgb_array':
             # return image frame
@@ -84,7 +86,7 @@ class RacecarEnv(gym.Env):
         if self.game.car.reached_goal:
             return 100
         # TODO: waypoints
-        return 0.01 * self.game.car.v
+        return self.game.car.v
     
     
     def _get_observation(self):
