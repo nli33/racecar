@@ -4,11 +4,16 @@ import pygame
 CAR = (255, 0, 0)
 TILE = (180, 180, 180)
 GOAL = (255, 255, 0)
-SPACE = (255, 255, 255)
+SPACE = (255, 255, 255) # out of bounds color
+
+'''
+Renderer encloses a Game instance
+'''
+
+pygame.init()
 
 class Renderer:
     def __init__(self, game: Game):
-        pygame.init()
         self.game = game
         self.size = (game.track.width, game.track.height)
         self.surface = pygame.display.set_mode(self.size)
@@ -22,7 +27,8 @@ class Renderer:
         
         pygame.draw.rect(self.surface, GOAL, self.game.track.goal.dimensions)
         
-        sf_w, sf_h = 100, 100  # surface dimensions
+        # draw car onto car_surf, rotate car_surf, then blit onto main surface
+        sf_w, sf_h = 100, 100  # car surface dimensions
         car_surf = pygame.Surface((sf_w, sf_h), pygame.SRCALPHA)
         car_w, car_l = self.game.car.size
         pygame.draw.rect(car_surf, CAR, (sf_w//2 - car_w//2, sf_h//2 - car_l//2, car_w, car_l))
