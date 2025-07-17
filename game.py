@@ -1,10 +1,11 @@
+from config import get_config
 import math
 import numpy as np
 import pygame
 
 
 class Track:
-    def __init__(self, config):
+    def __init__(self, config: dict):
         self.width = config.get("width")
         self.height = config.get("height")
         self.diagonal = math.hypot(self.width, self.height)
@@ -100,11 +101,14 @@ class Car:
 
 
 class Game:
-    def __init__(self, config):
+    def __init__(self, config: dict):
         self.track = Track(config)
         self.spawn = config.get("spawn")
         self.car = Car(self.spawn)
         self.step_count = 0
+        self.raycast_angles = config.get("raycast_angles")
+        if self.raycast_angles is None or len(self.raycast_angles) == 0:
+            raise ValueError("No raycast angles given")
 
     def reset(self):
         self.car.reset(self.spawn)
@@ -131,10 +135,9 @@ class Game:
             max_length = self.track.diagonal
         
         # relative ray angles
-        angles = [-45.0, -22.5, 0.0, 22.5, 45.0]
-        distances = np.zeros(5)
+        distances = np.zeros(len(self.raycast_angles))
         
-        for i, rel in enumerate(angles):
+        for i, rel in enumerate(self.raycast_angles):
             # yeah idk but this works so
             world_ang = math.radians(-(self.car.angle + rel))
             

@@ -5,12 +5,12 @@ CAR = (255, 0, 0)
 TILE = (180, 180, 180)
 GOAL = (255, 255, 0)
 SPACE = (255, 255, 255) # out of bounds color
+GRIDLINE = (50, 50, 50)
 
 '''
 Renderer encloses a Game instance
+should only be initialized once
 '''
-
-pygame.init()
 
 class Renderer:
     def __init__(self, game: Game):
@@ -18,6 +18,7 @@ class Renderer:
         self.size = (game.track.width, game.track.height)
         self.surface = pygame.display.set_mode(self.size)
         self.stopped = False
+        pygame.init()
     
     def render(self):
         self.surface.fill(SPACE)

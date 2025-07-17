@@ -14,16 +14,18 @@ RacecarEnv encloses a Game instance, it's basically a thin wrapper around Game
 class RacecarEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 30}
     
-    def __init__(self, config, render_mode=None):
+    def __init__(self, config: dict, render_mode=None):
         super().__init__()
         self.render_mode = render_mode
         self.game = Game(config)
         self.renderer = None
+        self.raycast_angles = config.get("raycast_angles")
+        num_raycast_angles = len(self.raycast_angles)
         self.action_space = spaces.MultiBinary(4)  # accel, left, right, brake
         # self.action_space = spaces.MultiDiscrete([3, 3])  # (none, left, right), (none, brake, accel)
         self.observation_space = spaces.Box(
-            low=np.array([0.0]*5 + [0.0]),  # 0 for rays, 0 for speed
-            high=np.array([self.game.track.diagonal]*5 + [self.game.car.max_v]),  # 10 for rays, 3 for speed
+            low=np.array([0.0]*num_raycast_angles + [0.0]),  # 0 for rays, 0 for speed
+            high=np.array([self.game.track.diagonal]*num_raycast_angles + [self.game.car.max_v]),  # 10 for rays, 3 for speed
             dtype=np.float32
         )
     
@@ -82,9 +84,9 @@ class RacecarEnv(gym.Env):
     
     def _compute_reward(self):
         if self.game.car.crashed:
-            return -100
+            return -1000
         if self.game.car.reached_goal:
-            return 100
+            return 1000
         # TODO: waypoints
         return self.game.car.v
     
