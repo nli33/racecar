@@ -12,6 +12,13 @@ Renderer encloses a Game instance
 should only be initialized once
 '''
 
+def draw_tile(surface: pygame.Surface, dimensions: tuple):
+    pygame.draw.rect(surface, TILE, dimensions)
+
+def draw_goal(surface: pygame.Surface, dimensions: tuple):
+    pygame.draw.rect(surface, GOAL, dimensions)
+
+
 class Renderer:
     def __init__(self, game: Game):
         self.game = game
@@ -24,9 +31,9 @@ class Renderer:
         self.surface.fill(SPACE)
         
         for tile in self.game.track.tiles:
-            pygame.draw.rect(self.surface, TILE, tile.dimensions)
+            draw_tile(self.surface, tile.dimensions)
         
-        pygame.draw.rect(self.surface, GOAL, self.game.track.goal.dimensions)
+        draw_goal(self.surface, self.game.track.goal.dimensions)
         
         # draw car onto car_surf, rotate car_surf, then blit onto main surface
         sf_w, sf_h = 100, 100  # car surface dimensions

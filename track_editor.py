@@ -1,6 +1,6 @@
 from config import get_config, write_config
 from enum import Enum
-from renderer import CAR, TILE, GOAL, SPACE, GRIDLINE
+from renderer import CAR, TILE, GOAL, SPACE, GRIDLINE, draw_tile, draw_goal
 import pygame
 
 class Mode(Enum):
@@ -47,8 +47,6 @@ try:
                 break
             
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                
-                # canvas action
                 if 0 <= mx < canvas_w and 0 <= mx < canvas_h:
                     if mode == Mode.TILE:
                         tiles.append((rx, ry, tile_size, tile_size))
@@ -83,9 +81,9 @@ try:
         
         # draw tiles/goals
         for tile in tiles:
-            pygame.draw.rect(screen, TILE, tuple(tile))
+            draw_tile(screen, tuple(tile))
         if goal is not None:
-            pygame.draw.rect(screen, GOAL, goal)
+            draw_goal(screen, goal)
         
         # draw gridlines
         for x in range(0, canvas_w, 100):
@@ -95,9 +93,9 @@ try:
         
         # draw hover preview
         if mode == Mode.GOAL:
-            pygame.draw.rect(screen, GOAL, (rx, ry, tile_size, tile_size))
+            draw_goal(screen, (rx, ry, tile_size, tile_size))
         elif mode == Mode.TILE:
-            pygame.draw.rect(screen, TILE, (rx, ry, tile_size, tile_size))
+            draw_tile(screen, (rx, ry, tile_size, tile_size))
         
         pygame.display.flip()
         
