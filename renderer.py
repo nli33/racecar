@@ -6,6 +6,7 @@ TILE = (180, 180, 180)
 GOAL = (255, 255, 0)
 SPACE = (255, 255, 255) # out of bounds color
 GRIDLINE = (50, 50, 50)
+SPAWN = (255, 0, 0)
 
 '''
 Renderer encloses a Game instance
@@ -18,6 +19,8 @@ def draw_tile(surface: pygame.Surface, dimensions: tuple):
 def draw_goal(surface: pygame.Surface, dimensions: tuple):
     pygame.draw.rect(surface, GOAL, dimensions)
 
+def draw_spawn(surface: pygame.Surface, coords: tuple):
+    pygame.draw.circle(surface, SPAWN, coords, 5)
 
 class Renderer:
     def __init__(self, game: Game):

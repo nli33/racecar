@@ -1,18 +1,20 @@
 from config import get_config, write_config
 from enum import Enum
-from renderer import CAR, TILE, GOAL, SPACE, GRIDLINE, draw_tile, draw_goal
+from renderer import SPACE, GRIDLINE, draw_tile, draw_goal, draw_spawn
 import pygame
 
 class Mode(Enum):
     TILE = 0
     GOAL = 1
     DELETE = 2
+    SPAWN = 3
 
 pygame.init()
 
 config = get_config()
 tiles = config.get("tiles", [])
 goal = config.get("goal")
+spawn = config.get("spawn")
 canvas_w = config.get("width", 700)
 canvas_h = config.get("height", 600)
 mode = Mode.TILE
@@ -22,6 +24,7 @@ keybinds = {
     pygame.K_t: "tile",
     pygame.K_g: "goal",
     pygame.K_s: "save",
+    pygame.K_b: "spawn",
 }
 
 MIN_TILE_SIZE = 25
@@ -57,6 +60,8 @@ try:
                                 tiles.remove(tile)
                     elif mode == Mode.GOAL:
                         goal = (rx, ry, tile_size, tile_size)
+                    elif mode == Mode.SPAWN:
+                        spawn = (rx, ry)
                 else:
                     pass
             
@@ -71,10 +76,19 @@ try:
                         mode = Mode.TILE
                     elif action == "goal":
                         mode = Mode.GOAL
+                    elif action == "spawn":
+                        mode = Mode.SPAWN
                     elif action == "save":
                         config["tiles"] = tiles
+                        config["goal"] = goal
+                        config["spawn"] = spawn
                         write_config(config)
                         print("Saved")
+                
+                if keys[pygame.K_DOWN]:
+                    tile_size = max(MIN_TILE_SIZE, tile_size-25)
+                elif keys[pygame.K_UP]:
+                    tile_size = min(MAX_TILE_SIZE, tile_size+25)
         
         # pygame.draw.rect(screen, SPACE, (0, 0, canvas_w, canvas_h))
         screen.fill(SPACE)
@@ -84,6 +98,8 @@ try:
             draw_tile(screen, tuple(tile))
         if goal is not None:
             draw_goal(screen, goal)
+        if spawn is not None:
+            draw_spawn(screen, spawn)
         
         # draw gridlines
         for x in range(0, canvas_w, 100):
@@ -96,6 +112,8 @@ try:
             draw_goal(screen, (rx, ry, tile_size, tile_size))
         elif mode == Mode.TILE:
             draw_tile(screen, (rx, ry, tile_size, tile_size))
+        elif mode == Mode.SPAWN:
+            draw_spawn(screen, (rx, ry))
         
         pygame.display.flip()
         
