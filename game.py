@@ -105,6 +105,7 @@ class Game:
         self.track = Track(config)
         self.spawn = config.get("spawn")
         self.car = Car(self.spawn)
+        self.first_step = None
         self.step_count = 0
         self.raycast_angles = config.get("raycast_angles")
         if self.raycast_angles is None or len(self.raycast_angles) == 0:
@@ -112,10 +113,15 @@ class Game:
 
     def reset(self):
         self.car.reset(self.spawn)
+        self.first_step = None
         self.step_count = 0
 
     def step(self, action):
+        null_action = [False, False, False, False]
+        if self.first_step is None and all(action[i] == null_action[i] for i in range(len(action))):
+            self.first_step = self.step_count
         if self.is_done():
+            print(self.step_count - self.first_step)
             return
         self.car.apply_action(action)
         self.car.update()
