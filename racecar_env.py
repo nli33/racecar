@@ -53,11 +53,14 @@ class RacecarEnv(gym.Env):
     def step(self, action):
         # apply action, update state
         self.game.step(action)
+        # print(self.game.step_count)
         obs = self._get_observation()
         reward = self._compute_reward()
         terminated = self._is_done()
         truncated = False # self.step_count >= self.max_steps
         info = {}
+        if terminated:
+            print("w", self.game.step_count)
         return obs, reward, terminated, truncated, info
 
 
@@ -66,14 +69,11 @@ class RacecarEnv(gym.Env):
             self.renderer = Renderer(self.game)
             
         if self.render_mode == 'human':
-            # draw visuals
             self.renderer.handle_events()
             if self.renderer.stopped:
                 raise RuntimeError("pygame GUI was closed")
             self.renderer.render()
-        elif self.render_mode == 'rgb_array':
-            # return image frame
-            pass
+        # elif self.render_mode == 'rgb_array':
 
 
     def close(self):
@@ -84,11 +84,13 @@ class RacecarEnv(gym.Env):
     
     def _compute_reward(self):
         if self.game.car.crashed:
-            return -1000
+            return -150
         if self.game.car.reached_goal:
-            return 1000
-        # TODO: waypoints
-        return self.game.car.v
+            return 150
+        speed_ratio = self.game.car.v / self.game.car.max_v
+        # more heavily reward speeds close to max
+        speed_reward = 4 * speed_ratio**2
+        return speed_reward
     
     
     def _get_observation(self):

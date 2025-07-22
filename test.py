@@ -1,5 +1,5 @@
 from config import get_config
-from env import RacecarEnv
+from racecar_env import RacecarEnv
 from stable_baselines3 import PPO
 
 env = RacecarEnv(config=get_config(), render_mode="human")

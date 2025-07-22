@@ -1,7 +1,7 @@
 from config import get_config
-import gymnasium as gym
-from env import RacecarEnv
 from stable_baselines3 import PPO
+from callback import RenderCallback
+from racecar_env import RacecarEnv
 
 env = RacecarEnv(get_config())
 
