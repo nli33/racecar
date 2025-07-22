@@ -1,6 +1,8 @@
 from game import Game
+import math
 import pygame
 
+# color values
 CAR = (255, 0, 0)
 TILE = (180, 180, 180)
 GOAL = (255, 255, 0)
@@ -23,29 +25,73 @@ def draw_spawn(surface: pygame.Surface, coords: tuple):
     pygame.draw.circle(surface, SPAWN, coords, 5)
 
 class Renderer:
-    def __init__(self, game: Game):
+    def __init__(self, game: Game, centered: bool = False):
         self.game = game
         self.size = (game.track.width, game.track.height)
         self.surface = pygame.display.set_mode(self.size)
         self.stopped = False
+        self.centered = centered
+        self.center = (game.track.width // 2, 3 * game.track.height // 4)
         pygame.init()
     
     def render(self):
         self.surface.fill(SPACE)
         
-        for tile in self.game.track.tiles:
-            draw_tile(self.surface, tile.dimensions)
+        if self.centered:
+            car_x, car_y = self.game.car.center
+            center_x = self.surface.get_width() / 2
+            center_y = self.surface.get_height() / 2
+            angle = math.radians(self.game.car.angle - 90)
+            
+            def transform(x, y):
+                dx = x - car_x
+                dy = y - car_y
+                x_trans = dx * math.cos(angle) - dy * math.sin(angle) + center_x
+                y_trans = dx * math.sin(angle) + dy * math.cos(angle) + center_y
+                return x_trans, y_trans
+            
+            # tiles
+            for tile in self.game.track.tiles:
+                x, y, w, h = tile.dimensions
+                corners = [
+                    (x, y),
+                    (x + w, y),
+                    (x + w, y + h),
+                    (x, y + h)
+                ]
+                transformed_corners = [transform(cx, cy) for cx, cy in corners]
+                pygame.draw.polygon(self.surface, (150, 150, 150), transformed_corners)
+            
+            # goal (rotated)
+            goal_x, goal_y, goal_w, goal_h = self.game.track.goal.dimensions
+            goal_corners = [
+                (goal_x, goal_y),
+                (goal_x + goal_w, goal_y),
+                (goal_x + goal_w, goal_y + goal_h),
+                (goal_x, goal_y + goal_h)
+            ]
+            transformed_goal_corners = [transform(cx, cy) for cx, cy in goal_corners]
+            pygame.draw.polygon(self.surface, (255, 215, 0), transformed_goal_corners)
+            
+            # draw car at center of screen
+            car_w, car_l = self.game.car.size
+            car_rect = (center_x - car_w / 2, center_y - car_l / 2, car_w, car_l)
+            pygame.draw.rect(self.surface, CAR, car_rect)
         
-        draw_goal(self.surface, self.game.track.goal.dimensions)
-        
-        # draw car onto car_surf, rotate car_surf, then blit onto main surface
-        sf_w, sf_h = 100, 100  # car surface dimensions
-        car_surf = pygame.Surface((sf_w, sf_h), pygame.SRCALPHA)
-        car_w, car_l = self.game.car.size
-        pygame.draw.rect(car_surf, CAR, (sf_w//2 - car_w//2, sf_h//2 - car_l//2, car_w, car_l))
-        rotated_surf = pygame.transform.rotate(car_surf, self.game.car.angle + 90)
-        rotated_rect = rotated_surf.get_rect(center=self.game.car.center)
-        self.surface.blit(rotated_surf, rotated_rect)
+        else:
+            # tiles
+            for tile in self.game.track.tiles:
+                pygame.draw.rect(self.surface, (150, 150, 150), tile.dimensions)
+            # goal
+            pygame.draw.rect(self.surface, (255, 215, 0), self.game.track.goal.dimensions)
+            # draw car onto car_surf, then transform car_surf
+            sf_w, sf_h = 100, 100
+            car_surf = pygame.Surface((sf_w, sf_h), pygame.SRCALPHA)
+            car_w, car_l = self.game.car.size
+            pygame.draw.rect(car_surf, CAR, (sf_w//2 - car_w//2, sf_h//2 - car_l//2, car_w, car_l))
+            rotated_surf = pygame.transform.rotate(car_surf, self.game.car.angle + 90)
+            rotated_rect = rotated_surf.get_rect(center=self.game.car.center)
+            self.surface.blit(rotated_surf, rotated_rect)
         
         pygame.display.flip()
     
