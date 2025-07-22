@@ -28,6 +28,7 @@ class RacecarEnv(gym.Env):
             high=np.array([self.game.track.diagonal]*num_raycast_angles + [self.game.car.max_v]),  # 10 for rays, 3 for speed
             dtype=np.float32
         )
+        self.max_steps = 500
     
     
     # initialize or reset environment to starting state
@@ -57,10 +58,10 @@ class RacecarEnv(gym.Env):
         obs = self._get_observation()
         reward = self._compute_reward()
         terminated = self._is_done()
-        truncated = False # self.step_count >= self.max_steps
+        truncated = self.game.step_count >= self.max_steps
         info = {}
         if terminated:
-            print("w", self.game.step_count)
+            print(self.game.step_count)
         return obs, reward, terminated, truncated, info
 
 
@@ -84,9 +85,9 @@ class RacecarEnv(gym.Env):
     
     def _compute_reward(self):
         if self.game.car.crashed:
-            return -150
+            return -100
         if self.game.car.reached_goal:
-            return 150
+            return 100
         speed_ratio = self.game.car.v / self.game.car.max_v
         # more heavily reward speeds close to max
         speed_reward = 4 * speed_ratio**2
