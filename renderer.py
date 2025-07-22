@@ -33,6 +33,7 @@ class Renderer:
         self.centered = centered
         self.center = (game.track.width // 2, 3 * game.track.height // 4)
         pygame.init()
+        self.clock = pygame.time.Clock()
     
     def render(self):
         self.surface.fill(SPACE)
@@ -94,6 +95,7 @@ class Renderer:
             self.surface.blit(rotated_surf, rotated_rect)
         
         pygame.display.flip()
+        self.clock.tick(60)
     
     def handle_events(self):
         action = [False, False, False, False]  # accel, steer_left, steer_right, brake
