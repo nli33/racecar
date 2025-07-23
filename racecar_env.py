@@ -85,9 +85,9 @@ class RacecarEnv(gym.Env):
     
     def _compute_reward(self):
         if self.game.car.crashed:
-            return -100
+            return -150
         if self.game.car.reached_goal:
-            return 100
+            return 150
         speed_ratio = self.game.car.v / self.game.car.max_v
         # more heavily reward speeds close to max
         speed_reward = 4 * speed_ratio**2

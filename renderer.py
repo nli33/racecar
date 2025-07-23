@@ -4,6 +4,7 @@ import pygame
 
 # color values
 CAR = (255, 0, 0)
+ALT_CAR = (0, 0, 255)
 TILE = (180, 180, 180)
 GOAL = (255, 255, 0)
 SPACE = (255, 255, 255) # out of bounds color
@@ -79,12 +80,34 @@ class Renderer:
             car_rect = (center_x - car_w / 2, center_y - car_l / 2, car_w, car_l)
             pygame.draw.rect(self.surface, CAR, car_rect)
         
+            if self.game.alt_car:
+                # agent_x, agent_y = self.game.alt_car.center
+                # alt_w, alt_l = self.game.alt_car.size
+                # agent_rect_center = transform(agent_x, agent_y)
+                # agent_rect = (agent_rect_center[0] - alt_w / 2, agent_rect_center[1] - alt_l / 2, alt_w, alt_l)
+                # pygame.draw.rect(self.surface, ALT_CAR, agent_rect)
+                # # Draw alt car with its own rotation
+                agent_x, agent_y = self.game.alt_car.center
+                alt_w, alt_l = self.game.alt_car.size
+                agent_rect_center = transform(agent_x, agent_y)
+
+                # Compute relative angle: how much the alt car is rotated compared to the main car
+                rel_angle = self.game.alt_car.angle - self.game.car.angle
+
+                # Draw rotated rectangle for alt car
+                alt_surf = pygame.Surface((alt_w, alt_l), pygame.SRCALPHA)
+                pygame.draw.rect(alt_surf, ALT_CAR, (0, 0, alt_w, alt_l))
+                rotated_alt_surf = pygame.transform.rotate(alt_surf, rel_angle)
+                rotated_alt_rect = rotated_alt_surf.get_rect(center=agent_rect_center)
+                self.surface.blit(rotated_alt_surf, rotated_alt_rect)
         else:
             # tiles
             for tile in self.game.track.tiles:
                 pygame.draw.rect(self.surface, (150, 150, 150), tile.dimensions)
+            
             # goal
             pygame.draw.rect(self.surface, (255, 215, 0), self.game.track.goal.dimensions)
+            
             # draw car onto car_surf, then transform car_surf
             sf_w, sf_h = 100, 100
             car_surf = pygame.Surface((sf_w, sf_h), pygame.SRCALPHA)
@@ -93,18 +116,32 @@ class Renderer:
             rotated_surf = pygame.transform.rotate(car_surf, self.game.car.angle + 90)
             rotated_rect = rotated_surf.get_rect(center=self.game.car.center)
             self.surface.blit(rotated_surf, rotated_rect)
+            
+            if self.game.alt_car:
+                alt_surf = pygame.Surface((sf_w, sf_h), pygame.SRCALPHA)
+                alt_w, alt_l = self.game.alt_car.size
+                pygame.draw.rect(alt_surf, ALT_CAR, (sf_w//2 - alt_w//2, sf_h//2 - alt_l//2, alt_w, alt_l))
+                agent_rotated_surf = pygame.transform.rotate(alt_surf, self.game.alt_car.angle + 90)
+                agent_rotated_rect = agent_rotated_surf.get_rect(center=self.game.alt_car.center)
+                self.surface.blit(agent_rotated_surf, agent_rotated_rect)
         
         pygame.display.flip()
         self.clock.tick(60)
     
     def handle_events(self):
         action = [False, False, False, False]  # accel, steer_left, steer_right, brake
-        pressed = pygame.key.get_pressed()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.stopped = True
                 return
+            
+            if event.type == pygame.KEYDOWN:
+                pressed = pygame.key.get_pressed()
+                if pressed[pygame.K_r]:
+                    self.game.reset()
+        
+        pressed = pygame.key.get_pressed()
             
         action[0] = pressed[pygame.K_w]
         action[1] = pressed[pygame.K_a]

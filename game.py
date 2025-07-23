@@ -101,10 +101,15 @@ class Car:
 
 
 class Game:
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, has_alt_car=False):
         self.track = Track(config)
         self.spawn = config.get("spawn")
         self.car = Car(self.spawn)
+        if has_alt_car:
+            self.alt_car = Car(self.spawn)
+            self.alt_car_active = True
+        else:
+            self.alt_car = None
         self.first_step = None
         self.step_count = 0
         self.raycast_angles = config.get("raycast_angles")
@@ -113,18 +118,26 @@ class Game:
 
     def reset(self):
         self.car.reset(self.spawn)
+        self.alt_car.reset(self.spawn) if self.alt_car else None
         self.first_step = None
         self.step_count = 0
+        self.alt_car_active = True
 
-    def step(self, action):
-        null_action = [False, False, False, False]
-        if self.first_step is None and all(action[i] == null_action[i] for i in range(len(action))):
+    def step(self, action, alt_car_action=None):
+        # record first action time
+        if self.first_step is None and any(action):
             self.first_step = self.step_count
+        
+        # print total time elapsed
         if self.is_done():
             print(self.step_count - self.first_step)
             return
+        
         self.car.apply_action(action)
         self.car.update()
+        if self.alt_car and alt_car_action.any() and self.alt_car_active:
+            self.alt_car.apply_action(alt_car_action)
+            self.alt_car.update()
         self.step_count += 1
         
         # check car status
@@ -133,9 +146,19 @@ class Game:
             self.car.crashed = True
         elif self.track.goal.contains_point(cx, cy):
             self.car.reached_goal = True
+        
+        # check alt car status
+        if self.alt_car and self.alt_car_active:
+            acx, acy = self.alt_car.center
+            if not self.track.on_platform(acx, acy) or self.track.goal.contains_point(acx, acy):
+                self.alt_car_active = False
 
-    def get_raycasts(self, max_length=None, step_size=1.0):
-        cx, cy = self.car.center
+    def get_raycasts(self, max_length=None, step_size=1.0, alt_car=False):
+        if alt_car:
+            car = self.alt_car
+        else:
+            car = self.car
+        cx, cy = car.center
         
         if max_length is None:
             max_length = self.track.diagonal
@@ -145,7 +168,7 @@ class Game:
         
         for i, rel in enumerate(self.raycast_angles):
             # yeah idk but this works so
-            world_ang = math.radians(-(self.car.angle + rel))
+            world_ang = math.radians(-(car.angle + rel))
             
             # distances[i] will be 0 if first step is off tiles
             dist = 0.0

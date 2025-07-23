@@ -10,16 +10,18 @@ model = PPO(
     env=env,
     verbose=1,
     seed=1)
+# use the line below to load a pre-trained model (i.e. continue training an existing one)
+# model = PPO.load("racecar_ppo_model", env=env)
 
-callback = RenderCallback(render_freq=1000)
+callback = RenderCallback(render_freq=20)
 try:
     model.learn(total_timesteps=100000, callback=callback)
 except RuntimeError as e:
-    if str(e) == "Pygame GUI was closed by the user":
-        print("Training stopped")
+    if str(e) == "pygame GUI was closed":
+        print("Training stopped, model not saved")
     else:
         raise e
+else:
+    model.save("racecar_ppo_model")
 finally:
     env.close()
-
-model.save("racecar_ppo_model")
