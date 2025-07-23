@@ -1,4 +1,9 @@
-racecar_ppo_model.zip
+# Track files
+*.json
+# Models
+*.zip
+
+# -----
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
