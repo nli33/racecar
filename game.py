@@ -100,6 +100,69 @@ class Car:
         return self.x, self.y
 
 
+class Waypoint:
+    """
+    A waypoint defined by a line segment between two endpoints.
+    They should guide the car towards the goal.
+    Note: the code using the Game class is responsible for calling the Game.check_waypoints() method,
+        it is not called by default. (ex: within RacecarEnv or play.py)
+    """
+    
+    def __init__(self, x1, y1, x2, y2):
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+    
+    @classmethod
+    def from_endpoints(cls, start: tuple, end: tuple):
+        return cls(start[0], start[1], end[0], end[1])
+
+    @property
+    def start(self):
+        return self.x1, self.y1
+
+    @property
+    def end(self):
+        return self.x2, self.y2
+    
+    def intersects_car(self, car: Car):
+        cx, cy = car.center
+        w, l = car.size
+        angle_rad = math.radians(-car.angle)
+        
+        hw, hl = w/2, l/2
+        # Compute corners relative to center, then rotate and translate
+        corners = []
+        for dx, dy in [(-hw, -hl), (hw, -hl), (hw, hl), (-hw, hl)]:
+            # Rotate
+            rx = dx * math.cos(angle_rad) - dy * math.sin(angle_rad)
+            ry = dx * math.sin(angle_rad) + dy * math.cos(angle_rad)
+            # Translate
+            corners.append((cx + rx, cy + ry))
+
+        # Car edges as line segments
+        car_edges = [
+            (corners[i], corners[(i + 1) % 4]) for i in range(4)
+        ]
+
+        # Waypoint as line segment
+        seg1 = ((self.x1, self.y1), (self.x2, self.y2))
+
+        # Check intersection with each car edge
+        for edge in car_edges:
+            if Waypoint.segments_intersect(seg1[0], seg1[1], edge[0], edge[1]):
+                return True
+        return False
+
+    # returns true if line segments p1-p2 and q1-q2 intersect
+    @staticmethod
+    def segments_intersect(p1, p2, q1, q2):
+        def ccw(a, b, c):
+            return (c[1]-a[1]) * (b[0]-a[0]) > (b[1]-a[1]) * (c[0]-a[0])
+        return (ccw(p1, q1, q2) != ccw(p2, q1, q2)) and (ccw(p1, p2, q1) != ccw(p1, p2, q2))
+
+
 class Game:
     def __init__(self, config: dict, has_alt_car=False):
         self.track = Track(config)
@@ -115,6 +178,9 @@ class Game:
         self.raycast_angles = config.get("raycast_angles")
         if self.raycast_angles is None or len(self.raycast_angles) == 0:
             raise ValueError("No raycast angles given")
+        # true if active
+        self.waypoints = {Waypoint.from_endpoints(*t): True for t in config.get("waypoints", [])}
+
 
     def reset(self):
         self.car.reset(self.spawn)
@@ -122,6 +188,9 @@ class Game:
         self.first_step = None
         self.step_count = 0
         self.alt_car_active = True
+        for waypoint in self.waypoints:
+            self.waypoints[waypoint] = True
+
 
     def step(self, action, alt_car_action=None):
         # record first action time
@@ -152,6 +221,7 @@ class Game:
             acx, acy = self.alt_car.center
             if not self.track.on_platform(acx, acy) or self.track.goal.contains_point(acx, acy):
                 self.alt_car_active = False
+
 
     def get_raycasts(self, max_length=None, step_size=1.0, alt_car=False):
         if alt_car:
@@ -185,5 +255,17 @@ class Game:
         
         return distances
 
+
     def is_done(self):
         return self.car.crashed or self.car.reached_goal # or self.step_count >= self.max_steps
+
+
+    def check_waypoints(self):
+        count = 0
+        for waypoint, active in self.waypoints.items():
+            if not active: 
+                continue
+            if waypoint.intersects_car(self.car):
+                self.waypoints[waypoint] = False
+                count += 1
+        return count

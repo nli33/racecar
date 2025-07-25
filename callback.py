@@ -7,7 +7,7 @@ callback:
 '''
 
 
-class RenderCallback(BaseCallback):
+class Callback(BaseCallback):
     def __init__(self, render_freq=1000, verbose=0):
         super().__init__(verbose)
         
@@ -15,6 +15,7 @@ class RenderCallback(BaseCallback):
         self.render_freq = render_freq
         self.episode_rewards = []
         self.episode_steps = []
+        self.episode_outcomes = []
         self.current_reward = 0
         self.current_steps = 0
 
@@ -28,11 +29,14 @@ class RenderCallback(BaseCallback):
             except RuntimeError as e:
                 if str(e) == "pygame GUI was closed":
                     print("Training stopped: pygame GUI was closed")
-                    return False  # Stop training
                 raise e
         
         # log episode metrics
         if self.locals["dones"]:
+            info = self.locals.get("infos", [{}])[0]
+            outcome = info.get("outcome", "unknown")
+            self.episode_outcomes.append(outcome)
+            
             self.episode_rewards.append(self.current_reward)
             self.episode_steps.append(self.current_steps)
             print(f"Episode {len(self.episode_rewards)}: Reward = {self.current_reward}, Steps = {self.current_steps}")

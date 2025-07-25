@@ -28,7 +28,7 @@ class RacecarEnv(gym.Env):
             high=np.array([self.game.track.diagonal]*num_raycast_angles + [self.game.car.max_v]),  # 10 for rays, 3 for speed
             dtype=np.float32
         )
-        self.max_steps = 500
+        self.max_steps = 1000
     
     
     # initialize or reset environment to starting state
@@ -52,14 +52,24 @@ class RacecarEnv(gym.Env):
     # - truncated: terminated due to timeout or external limit
     # - info: optional debug info
     def step(self, action):
-        # apply action, update state
         self.game.step(action)
-        # print(self.game.step_count)
         obs = self._get_observation()
         reward = self._compute_reward()
         terminated = self._is_done()
         truncated = self.game.step_count >= self.max_steps
-        info = {}
+
+        outcome = None
+        if terminated:
+            car = self.game.car
+            if car.reached_goal:
+                outcome = "success"
+            elif car.crashed:
+                outcome = "crash"
+            else:
+                outcome = "other"
+        elif truncated:
+            outcome = "timeout"
+        info = {"outcome": outcome}
         if terminated:
             print(self.game.step_count)
         return obs, reward, terminated, truncated, info

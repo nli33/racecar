@@ -10,6 +10,7 @@ GOAL = (255, 255, 0)
 SPACE = (255, 255, 255) # out of bounds color
 GRIDLINE = (50, 50, 50)
 SPAWN = (255, 0, 0)
+WAYPOINT = (0, 255, 0)
 
 '''
 Renderer encloses a Game instance
@@ -24,6 +25,14 @@ def draw_goal(surface: pygame.Surface, dimensions: tuple):
 
 def draw_spawn(surface: pygame.Surface, coords: tuple):
     pygame.draw.circle(surface, SPAWN, coords, 5)
+
+def draw_waypoint(surface: pygame.Surface, start: tuple, end: tuple):
+    pygame.draw.line(surface, WAYPOINT, start, end, 2)
+    draw_waypoint_endpoint(surface, start)
+    draw_waypoint_endpoint(surface, end)
+
+def draw_waypoint_endpoint(surface: pygame.Surface, coords: tuple):
+    pygame.draw.circle(surface, WAYPOINT, coords, 5)
 
 class Renderer:
     def __init__(self, game: Game, centered: bool = False):
@@ -74,24 +83,29 @@ class Renderer:
             ]
             transformed_goal_corners = [transform(cx, cy) for cx, cy in goal_corners]
             pygame.draw.polygon(self.surface, (255, 215, 0), transformed_goal_corners)
-            
+
+            # draw waypoints (transform both endpoints)
+            for wp, active in self.game.waypoints.items():
+                if not active:
+                    continue
+                start = transform(wp.x1, wp.y1)
+                end = transform(wp.x2, wp.y2)
+                pygame.draw.line(self.surface, WAYPOINT, start, end, 2)
+                pygame.draw.circle(self.surface, WAYPOINT, (int(start[0]), int(start[1])), 5)
+                pygame.draw.circle(self.surface, WAYPOINT, (int(end[0]), int(end[1])), 5)
+
             # draw car at center of screen
             car_w, car_l = self.game.car.size
             car_rect = (center_x - car_w / 2, center_y - car_l / 2, car_w, car_l)
             pygame.draw.rect(self.surface, CAR, car_rect)
-        
+
             if self.game.alt_car:
-                # agent_x, agent_y = self.game.alt_car.center
-                # alt_w, alt_l = self.game.alt_car.size
-                # agent_rect_center = transform(agent_x, agent_y)
-                # agent_rect = (agent_rect_center[0] - alt_w / 2, agent_rect_center[1] - alt_l / 2, alt_w, alt_l)
-                # pygame.draw.rect(self.surface, ALT_CAR, agent_rect)
-                # # Draw alt car with its own rotation
+                # draw alt car with its own rotation
                 agent_x, agent_y = self.game.alt_car.center
                 alt_w, alt_l = self.game.alt_car.size
                 agent_rect_center = transform(agent_x, agent_y)
 
-                # Compute relative angle: how much the alt car is rotated compared to the main car
+                # relative angle between alt car and main car
                 rel_angle = self.game.alt_car.angle - self.game.car.angle
 
                 # Draw rotated rectangle for alt car
@@ -107,7 +121,13 @@ class Renderer:
             
             # goal
             pygame.draw.rect(self.surface, (255, 215, 0), self.game.track.goal.dimensions)
-            
+
+            # draw waypoints (no transform needed)
+            for waypoint, active in self.game.waypoints.items():
+                if not active:
+                    continue
+                draw_waypoint(self.surface, waypoint.start, waypoint.end)
+
             # draw car onto car_surf, then transform car_surf
             sf_w, sf_h = 100, 100
             car_surf = pygame.Surface((sf_w, sf_h), pygame.SRCALPHA)

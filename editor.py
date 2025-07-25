@@ -1,6 +1,6 @@
 from config import get_config, write_config
 from enum import Enum
-from renderer import SPACE, GRIDLINE, draw_tile, draw_goal, draw_spawn
+from renderer import SPACE, GRIDLINE, draw_tile, draw_goal, draw_spawn, draw_waypoint, draw_waypoint_endpoint
 import pygame
 
 class Mode(Enum):
@@ -8,6 +8,7 @@ class Mode(Enum):
     GOAL = 1
     DELETE = 2
     SPAWN = 3
+    WAYPOINT = 4
 
 pygame.init()
 
@@ -15,6 +16,8 @@ config = get_config()
 tiles = config.get("tiles", [])
 goal = config.get("goal")
 spawn = config.get("spawn")
+waypoints = config.get("waypoints", []) # represented as tuples in the editor
+waypoint_endpoint = None
 canvas_w = config.get("width", 700)
 canvas_h = config.get("height", 600)
 mode = Mode.TILE
@@ -25,6 +28,8 @@ keybinds = {
     pygame.K_g: "goal",
     pygame.K_s: "save",
     pygame.K_b: "spawn",
+    pygame.K_w: "waypoint",
+    pygame.K_ESCAPE: "clear_waypoint",
 }
 
 MIN_TILE_SIZE = 25
@@ -50,20 +55,29 @@ try:
                 break
             
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if 0 <= mx < canvas_w and 0 <= mx < canvas_h:
-                    if mode == Mode.TILE:
-                        tiles.append((rx, ry, tile_size, tile_size))
-                    elif mode == Mode.DELETE:
-                        for tile in tiles[:]:
-                            x, y, w, h = tile
-                            if x <= mx < x+w and y <= my < y+h:
-                                tiles.remove(tile)
-                    elif mode == Mode.GOAL:
-                        goal = (rx, ry, tile_size, tile_size)
-                    elif mode == Mode.SPAWN:
-                        spawn = (rx, ry)
-                else:
-                    pass
+                if mode == Mode.TILE:
+                    tiles.append((rx, ry, tile_size, tile_size))
+                elif mode == Mode.DELETE:
+                    for tile in tiles[:]:
+                        x, y, w, h = tile
+                        if x <= mx < x+w and y <= my < y+h:
+                            tiles.remove(tile)
+                    for waypoint in waypoints[:]:
+                        start, end = waypoint
+                        if abs(start[0] - mx) < 10 and abs(start[1] - my) < 10:
+                            waypoints.remove(waypoint)
+                        elif abs(end[0] - mx) < 10 and abs(end[1] - my) < 10:
+                            waypoints.remove(waypoint)
+                elif mode == Mode.GOAL:
+                    goal = (rx, ry, tile_size, tile_size)
+                elif mode == Mode.SPAWN:
+                    spawn = (rx, ry)
+                elif mode == Mode.WAYPOINT:
+                    if waypoint_endpoint is None:
+                        waypoint_endpoint = (rx, ry)
+                    else:
+                        waypoints.append((waypoint_endpoint, (rx, ry)))
+                        waypoint_endpoint = None
             
             elif event.type == pygame.KEYDOWN:
                 keys = pygame.key.get_pressed()
@@ -82,8 +96,13 @@ try:
                         config["tiles"] = tiles
                         config["goal"] = goal
                         config["spawn"] = spawn
+                        config["waypoints"] = waypoints
                         write_config(config)
                         print("Saved")
+                    elif action == "waypoint":
+                        mode = Mode.WAYPOINT
+                    elif action == "clear_waypoint":
+                        waypoint_endpoint = None
                 
                 if keys[pygame.K_DOWN]:
                     tile_size = max(MIN_TILE_SIZE, tile_size-25)
@@ -107,6 +126,14 @@ try:
         for y in range(0, canvas_h, 100):
             pygame.draw.rect(screen, GRIDLINE, (0, y, canvas_w, LINE_WIDTH))
         
+        # draw waypoints
+        for start, end in waypoints:
+            draw_waypoint(screen, start, end)
+        
+        # draw endpoint, if any
+        if waypoint_endpoint is not None:
+            draw_waypoint_endpoint(screen, waypoint_endpoint)
+        
         # draw hover preview
         if mode == Mode.GOAL:
             draw_goal(screen, (rx, ry, tile_size, tile_size))
@@ -114,6 +141,8 @@ try:
             draw_tile(screen, (rx, ry, tile_size, tile_size))
         elif mode == Mode.SPAWN:
             draw_spawn(screen, (rx, ry))
+        elif mode == Mode.WAYPOINT:
+            draw_waypoint_endpoint(screen, (rx, ry))
         
         pygame.display.flip()
         

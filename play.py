@@ -5,7 +5,7 @@ from renderer import Renderer
 from stable_baselines3 import PPO
 
 center_car = True
-show_alt_car = True
+show_alt_car = False
 
 if __name__ == "__main__":
     game = Game(get_config(), has_alt_car=show_alt_car)
@@ -23,4 +23,5 @@ if __name__ == "__main__":
             game.step(action, alt_action)
         else:
             game.step(action, np.array([0, 0, 0, 0]))
+        game.check_waypoints()
         renderer.render()
