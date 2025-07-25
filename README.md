@@ -33,8 +33,8 @@ It has very rigid physics; the track's boundaries are always axis-aligned (recta
 The only direct feedback that the agent receives is through the reward function. A poorly designed reward function can cause unintended shortcuts and suboptimal actions.
 
 The reward function I used was simple and worked decently well:
-- If the car crashes, the agent receives a penalty of -150. 
-- If the goal tile is reached, the agent is given a reward of 150. 
+- If the car crashes, the agent receives a penalty of -100. 
+- If the goal tile is reached, the agent is given a reward of 100. 
 - Otherwise, during "normal" driving, the agent receives a reward of `4 * (car_speed / max_car_speed_allowed) ^ 2` every frame. 
 
 Making the reward increase quadratically at higher speeds encourages the agent to more heavily prefer higher speeds. 
