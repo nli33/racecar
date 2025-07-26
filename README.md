@@ -81,14 +81,15 @@ It has very rigid physics; the track's boundaries are always axis-aligned (recta
 **Training Demos**
 
 <p align="center">
-  <video src="assets/early_training.mp4" width="320" height="240" controls></video><br/>
+  <img src="assets/early_training.gif" alt="Mid-stage training">
   <em>Early-stage training</em>
 </p><br/>
 <p align="center">
-  <video src="assets/mid_training.mp4" width="320" height="240" controls></video><br/>
+  <img src="assets/mid_training.gif" alt="Mid-stage training">
   <em>Mid-stage training</em>
 </p><br/>
+</p><br/>
 <p align="center">
-  <video src="assets/late_training.mp4" width="320" height="240" controls></video><br/>
+  <img src="assets/late_training.gif" alt="Mid-stage training">
   <em>Late-stage training</em>
 </p><br/>
