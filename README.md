@@ -14,15 +14,15 @@ The environment (`RacecarEnv`) wraps a `Game` instance and provides structured o
 In the early stages of training, the agent behaves erratically, often crashing and failing to reach the goal as it explores the environment and collects initial experiences. Its actions are largely random, and reward signals are sparse or highly variable. 
 
 <p align="center">
-  <img src="assets/training200k.png" alt="Training progress">
-  <em>Early training process (0 - 200,000 timesteps).</em><br/>
+  <img src="assets/training200k.png" alt="Training progress"><br/>
+  <em>Early training process (0 - 200,000 timesteps).</em>
 </p><br/>
 
 Over time, as training progresses, the agent starts to complete the track consistently, and gradually improves its speed. In late-stage training the agent shows more stable behavior and slower incremental gains as it converges toward a more optimal policy.
 
 <p align="center">
-  <img src="assets/training1m_2.png" alt="Training progress">
-  <em>Late-stage training (1,000,000 - 2,000,000 timesteps).</em><br/>
+  <img src="assets/training1m_2.png" alt="Training progress"><br/>
+  <em>Late-stage training (1,000,000 - 2,000,000 timesteps).</em>
 </p><br/>
 
 Overall throughout the training process, the agent converges closer and closer to a "theoretically perfect" policy. In late-stage training, the agent consistently completes episodes within a narrow range of step counts, showing that it has developed a reliable strategy.
@@ -30,8 +30,8 @@ Overall throughout the training process, the agent converges closer and closer t
 There are still occasional failures, which displays the balance between exploitation (using the learned policy) and exploration (testing new actions) in training.
 
 <p align="center">
-  <img src="assets/training4m.png" alt="Training progress">
-  <em>Overall training process (0 - 4,000,000 timesteps).</em><br/>
+  <img src="assets/training4m.png" alt="Training progress"><br/>
+  <em>Overall training process (0 - 4,000,000 timesteps).</em>
 </p><br/>
 
 **The reward function**
@@ -81,15 +81,15 @@ It has very rigid physics; the track's boundaries are always axis-aligned (recta
 **Training Demos**
 
 <p align="center">
-  <img src="assets/early_training.gif" alt="Mid-stage training">
-  <em>Early-stage training</em><br/>
+  <img src="assets/early_training.gif" alt="Mid-stage training"><br/>
+  <em>Early-stage training</em>
 </p><br/>
 <p align="center">
-  <img src="assets/mid_training.gif" alt="Mid-stage training">
-  <em>Mid-stage training</em><br/>
+  <img src="assets/mid_training.gif" alt="Mid-stage training"><br/>
+  <em>Mid-stage training</em>
 </p><br/>
 </p><br/>
 <p align="center">
-  <img src="assets/late_training.gif" alt="Mid-stage training">
-  <em>Late-stage training</em><br/>
+  <img src="assets/late_training.gif" alt="Mid-stage training"><br/>
+  <em>Late-stage training</em>
 </p><br/>
