@@ -15,14 +15,14 @@ In the early stages of training, the agent behaves erratically, often crashing a
 
 <p align="center">
   <img src="assets/training200k.png" alt="Training progress">
-  <em>Early training process (0 - 200,000 timesteps).</em>
+  <em>Early training process (0 - 200,000 timesteps).</em><br/>
 </p><br/>
 
 Over time, as training progresses, the agent starts to complete the track consistently, and gradually improves its speed. In late-stage training the agent shows more stable behavior and slower incremental gains as it converges toward a more optimal policy.
 
 <p align="center">
   <img src="assets/training1m_2.png" alt="Training progress">
-  <em>Late-stage training (1,000,000 - 2,000,000 timesteps).</em>
+  <em>Late-stage training (1,000,000 - 2,000,000 timesteps).</em><br/>
 </p><br/>
 
 Overall throughout the training process, the agent converges closer and closer to a "theoretically perfect" policy. In late-stage training, the agent consistently completes episodes within a narrow range of step counts, showing that it has developed a reliable strategy.
@@ -31,7 +31,7 @@ There are still occasional failures, which displays the balance between exploita
 
 <p align="center">
   <img src="assets/training4m.png" alt="Training progress">
-  <em>Overall training process (0 - 4,000,000 timesteps).</em>
+  <em>Overall training process (0 - 4,000,000 timesteps).</em><br/>
 </p><br/>
 
 **The reward function**
@@ -82,14 +82,14 @@ It has very rigid physics; the track's boundaries are always axis-aligned (recta
 
 <p align="center">
   <img src="assets/early_training.gif" alt="Mid-stage training">
-  <em>Early-stage training</em>
+  <em>Early-stage training</em><br/>
 </p><br/>
 <p align="center">
   <img src="assets/mid_training.gif" alt="Mid-stage training">
-  <em>Mid-stage training</em>
+  <em>Mid-stage training</em><br/>
 </p><br/>
 </p><br/>
 <p align="center">
   <img src="assets/late_training.gif" alt="Mid-stage training">
-  <em>Late-stage training</em>
+  <em>Late-stage training</em><br/>
 </p><br/>
