@@ -77,3 +77,18 @@ One example is when the correct path is behind the car when it spawns, so it has
 - The game itself is very simple. 
 
 It has very rigid physics; the track's boundaries are always axis-aligned (rectangular); the car is a simple rectangle and the game simply ends when the car's center leaves the track. In a game like Trackmania there is much more complex physics which allows for the car being airborne, along with mechanics like drifting. With a more complex game, I'm guessing the agent's decision MLP will need to have more inputs (axes of rotation, angular velocity/accel, distance to waypoints, etc) and will need to be trained for longer.
+
+**Training Demos**
+
+<p align="center">
+  <video src="assets/early_training.mp4" width="320" height="240" controls></video><br/>
+  <em>Early-stage training</em>
+</p><br/>
+<p align="center">
+  <video src="assets/mid_training.mp4" width="320" height="240" controls></video><br/>
+  <em>Mid-stage training</em>
+</p><br/>
+<p align="center">
+  <video src="assets/late_training.mp4" width="320" height="240" controls></video><br/>
+  <em>Late-stage training</em>
+</p><br/>
