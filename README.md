@@ -13,26 +13,26 @@ The environment (`RacecarEnv`) wraps a `Game` instance and provides structured o
 
 In the early stages of training, the agent behaves erratically, often crashing and failing to reach the goal as it explores the environment and collects initial experiences. Its actions are largely random, and reward signals are sparse or highly variable. 
 
-<figure align="center">
+<p align="center">
   <img src="assets/training200k.png" alt="Training progress">
-  <figcaption><em>Early training process (0 - 200,000 timesteps).</em></figcaption>
-</figure><br/>
+  <em>Early training process (0 - 200,000 timesteps).</em>
+</p><br/>
 
 Over time, as training progresses, the agent starts to complete the track consistently, and gradually improves its speed. In late-stage training the agent shows more stable behavior and slower incremental gains as it converges toward a more optimal policy.
 
-<figure align="center">
+<p align="center">
   <img src="assets/training1m_2.png" alt="Training progress">
-  <figcaption><em>Late-stage training (1,000,000 - 2,000,000 timesteps).</em></figcaption>
-</figure><br/>
+  <em>Late-stage training (1,000,000 - 2,000,000 timesteps).</em>
+</p><br/>
 
 Overall throughout the training process, the agent converges closer and closer to a "theoretically perfect" policy. In late-stage training, the agent consistently completes episodes within a narrow range of step counts, showing that it has developed a reliable strategy.
 
 There are still occasional failures, which displays the balance between exploitation (using the learned policy) and exploration (testing new actions) in training.
 
-<figure align="center">
+<p align="center">
   <img src="assets/training4m.png" alt="Training progress">
-  <figcaption><em>Overall training process (0 - 4,000,000 timesteps).</em></figcaption>
-</figure><br/>
+  <em>Overall training process (0 - 4,000,000 timesteps).</em>
+</p><br/>
 
 **The reward function**
 
