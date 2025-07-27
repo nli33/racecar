@@ -1,4 +1,3 @@
-from config import get_config
 import math
 import numpy as np
 import pygame
@@ -35,9 +34,6 @@ class Tile:
         return self.x <= px <= self.x + self.w and self.y <= py <= self.y + self.h
 
 
-# TODO: give less control over steering
-
-# rectangular for now
 class Car:
     def __init__(self, spawn, length=20, width=10):
         self.spawn = spawn

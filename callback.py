@@ -6,7 +6,6 @@ callback:
 - monitor/log/modify training behaviour
 '''
 
-
 class Callback(BaseCallback):
     def __init__(self, render_freq=1000, verbose=0):
         super().__init__(verbose)
