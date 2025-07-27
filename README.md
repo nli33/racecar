@@ -1,6 +1,10 @@
 # RL Agent Race Car
 Playing a 2D Racecar Game with a Reinforcement Learning Agent
 
+### Getting Started
+
+See `DOCUMENTATION.md`
+
 ### Features
 
 - Training a configurable agent on a 2D race car track
@@ -142,8 +146,8 @@ The agent takes much longer to initially get a successful run. But after stumbli
 
 #### Future improvements
 
-- The agent does poorly when the track requires a big turn immediately at the beginning
-  - Ex: when the correct route is initially behind the car at spawnpoint, so it has to make a U-turn
+- The agent struggles when the track requires a big turn immediately at the beginning
+  - Ex: when the correct route is initially behind the car at spawnpoint, so it has to make a U-turn (`configs/beginning_u_turn.json`)
   - Reason: my guess is that the agent has a hard time "discovering" the turn via random exploration. At the very beginning of training the agent is just selecting random actions, so on average the agent will tend to favor moving forward.
 
 - Make the game more complex. Currently:
@@ -151,3 +155,8 @@ The agent takes much longer to initially get a successful run. But after stumbli
   - Track is on a 2D square grid
   - No complex mechanics like drifting, or the car being airborne
   - In the future for a complex game, might require more inputs (axes of rotation, angular velocity/accel, distance to waypoints, etc) and longer training time
+
+- Add randomized training
+  - Currently training always begins at the start of the track
+  - However, it could be beneficial for the agent to start at a random position on the track. 
+  - This way, it can get equally familiar with all parts of the track, not overly familiar with the beginning.

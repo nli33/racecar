@@ -1,7 +1,7 @@
-# Track files
-*.json
 # Models
 *.zip
+# Configs (testing)
+./*.json
 
 # -----
 
