@@ -59,6 +59,8 @@ python3 play.py --agent fast_model.zip
 python3 play.py --center
 ```
 
+Press R to reset.
+
 ### Config
 
 By default, config is located at `./config.json` and specifies the race car's **relative raycast angles** (for NN input) in addition to track information. Raycast angles must be edited manually, you can't edit them in the editor
