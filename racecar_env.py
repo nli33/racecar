@@ -28,7 +28,10 @@ class RacecarEnv(gym.Env):
             high=np.array([self.game.track.diagonal]*num_raycast_angles + [self.game.car.max_v]),  # 10 for rays, 3 for speed
             dtype=np.float32
         )
-        self.max_steps = 1000
+        self.max_steps = 12000
+        # Track which 25x25 unit the car is in and how long it stays
+        self.last_unit = None
+        self.unit_stay_count = 0
     
     
     # initialize or reset environment to starting state
@@ -38,7 +41,9 @@ class RacecarEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.game.reset()
-        # reset internal state
+        # reset unit tracking
+        self.last_unit = None
+        self.unit_stay_count = 0
         obs = self._get_observation()
         info = {}
         return obs, info
@@ -94,14 +99,30 @@ class RacecarEnv(gym.Env):
     
     
     def _compute_reward(self):
+        if self.game.step_count >= self.max_steps:  # timeout
+            return -1000
         if self.game.car.crashed:
-            return -150
+            return -1000
         if self.game.car.reached_goal:
-            return 150
-        speed_ratio = self.game.car.v / self.game.car.max_v
-        # more heavily reward speeds close to max
-        speed_reward = 4 * speed_ratio**2
-        return speed_reward
+            return 1000
+
+        # punish staying in the same 25x25 unit for >100 timesteps
+        x, y = self.game.car.center
+        unit = (int(x // 25), int(y // 25))
+        idle_penalty = 0
+        if self.last_unit == unit:
+            self.unit_stay_count += 1
+            if self.unit_stay_count > 100:
+                idle_penalty = -10
+        else:
+            self.last_unit = unit
+            self.unit_stay_count = 1
+
+        speed_reward = 1 * (self.game.car.v / self.game.car.max_v)**2
+        waypoint_reward = 10 * self.game.check_waypoints()
+        default_penalty = 0
+        
+        return default_penalty + waypoint_reward + speed_reward + idle_penalty
     
     
     def _get_observation(self):
